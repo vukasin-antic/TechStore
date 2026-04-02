@@ -26,7 +26,7 @@ zatim promeniti u .env file za mail i za bazu:
 - `MAIL_HOST=smtp.gmail.com`
 - `MAIL_PORT=587`
 - `MAIL_USERNAME=vukasin.antic6@gmail.com`
-- `MAIL_PASSWORD=doxshfdctkjkncyq`
+- `MAIL_PASSWORD=poslato na mail`
 - `MAIL_ENCRYPTION=tls`
 - `MAIL_FROM_ADDRESS=vukasin.antic6@gmail.com`
 - `MAIL_FROM_NAME="TechStore"`
