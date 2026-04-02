@@ -25,7 +25,7 @@ class CreateProductRequest extends FormRequest
             'name' => 'required|string',
             'price' => 'required|numeric|min:1',
             'description' => 'required|string',
-            'stock' => 'required|min:0',
+            'stock' => 'required|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
             'brand_id' => 'required|exists:brands,id',
             'specs' => 'required|array|min:1',
