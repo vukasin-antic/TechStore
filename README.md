@@ -57,3 +57,11 @@ php artisan storage:link
 ```bash
 php artisan serve
 ```
+
+## 8. Kredencijali za admina i obicnog korisnika
+
+admin@gmail.com
+admin123
+
+test@gmail.com
+test1234
