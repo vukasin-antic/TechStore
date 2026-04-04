@@ -26,14 +26,14 @@
                     <div class="mb-3">
                         <label for="email">Email</label>
                         <input type="email" id="email" name="email" class="form-control @error('email') is-invalid @enderror"
-                               placeholder="Enter email" value="admin@gmail.com" required autofocus>
+                               placeholder="Enter email" required autofocus>
                     </div>
 
                     <div class="mb-3">
                         <label for="password">Password</label>
                         <input type="password" id="password" name="password"
                                class="form-control"
-                               placeholder="Enter password" required value="admin123">
+                               placeholder="Enter password" required>
                     </div>
 
                     <button class="btn btn-primary w-100">Sign In</button>
