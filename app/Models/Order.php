@@ -15,12 +15,15 @@ class Order extends Model
         'order_number',
         'total_price',
         'discount',
-        'status',
+        'status_id',
+        'cancel_reason',
         'address',
         'city',
         'country',
         'phone_number',
         'notes',
+        'promo_code',
+        'discount_percent',
     ];
 
     public function user()
@@ -31,5 +34,13 @@ class Order extends Model
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
+    }
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+    public function status()
+    {
+        return $this->belongsTo(OrderStatus::class);
     }
 }

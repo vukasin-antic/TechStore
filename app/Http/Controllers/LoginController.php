@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Cart;
 
@@ -21,6 +22,12 @@ class LoginController extends Controller
             if ($user->is_banned) {
                 return redirect()->back()->withErrors(['credentials' => 'Your account has been banned. Please contact support.']);
             }
+            if (!$user->email_verified_at) {
+                session(['verify_email' => $user->email]);
+                return redirect()->back()->withErrors(['not_verified' => 'Nalog još uvek nije aktivan']);
+            }
+
+            Auth::loginUsingId($user->id);
 
             session(['user' => [
                 'id' => $user->id,
@@ -47,6 +54,7 @@ class LoginController extends Controller
 
     public function logout() {
         try{
+            Auth::logout();
             session()->invalidate();
             session()->regenerateToken();
             return redirect()->route('home');

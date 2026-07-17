@@ -108,9 +108,8 @@ class AdminSpecificationController extends Controller
     {
         try{
             $specification = SpecificationType::findOrFail($id);
-            $product = Specification::where('specification_type_id', $specification->id)->get();
 
-            if($product->count() > 0){
+            if ($specification->specifications()->exists()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'You can’t delete this specification because it is assigned to one or more products!'

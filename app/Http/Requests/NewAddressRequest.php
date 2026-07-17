@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CheckoutRequest extends FormRequest
+class NewAddressRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -21,19 +21,11 @@ class CheckoutRequest extends FormRequest
      */
     public function rules(): array
     {
-        if ($this->filled('selected_address_id')) {
-            return [
-                'selected_address_id' => 'required|exists:addresses,id',
-                'notes' => 'nullable|string',
-            ];
-        }
-
         return [
             'address' => 'required|string',
             'city' => 'required|string|regex:/^[a-zA-ZÀ-ž\s]+$/|min:2|max:15',
             'country' => 'required|string|regex:/^[a-zA-ZÀ-ž\s]+$/|min:2|max:15',
             'phone_number' => 'required|string|regex:/^[0-9]{10}$/',
-            'notes' => 'nullable|string',
         ];
     }
 }

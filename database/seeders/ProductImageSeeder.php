@@ -49,5 +49,13 @@ class ProductImageSeeder extends Seeder
         $images('Samsung 970 EVO 1TB', ['Samsung-970-EVO-1TB-1.webp', 'Samsung-970-EVO-1TB-2.webp', 'Samsung-970-EVO-1TB-3.webp', 'Samsung-970-EVO-1TB-4.webp']);
         $images('Kingston KC3000 1TB', ['Kingston-KC3000-1TB-1.webp', 'Kingston-KC3000-1TB-2.webp', 'Kingston-KC3000-1TB-3.webp']);
 
+        // Products without dedicated photos get the placeholder as primary image
+        Product::doesntHave('images')->get()->each(function ($product) {
+            ProductImage::create([
+                'product_id' => $product->id,
+                'image' => 'placeholder.png',
+                'is_primary' => true,
+            ]);
+        });
     }
 }

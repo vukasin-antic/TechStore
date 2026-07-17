@@ -1,4 +1,4 @@
-<div class="container-fluid footer py-5 " >
+<div class="container-fluid footer py-5 mt-2" >
     <div class="container py-5">
         <div class="row g-4 rounded" style="background: rgba(255, 255, 255, .03);">
             <div class="col-md-6 col-lg-6 col-xl-3">

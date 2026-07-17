@@ -39,7 +39,7 @@
                                         <p class="mb-0"><strong>Date:</strong> {{ $order->created_at->format('d M Y') }}</p>
                                     </div>
                                 </div>
-                                @if($order->status === 'cancelled')
+                                @if($order->status->name === \App\Enums\OrderStatusEnum::Cancelled)
                                     <div class="alert alert-danger mb-3">
                                         <i class="fas fa-ban me-2"></i> This order has been cancelled and cannot be modified.
                                     </div>
@@ -47,12 +47,14 @@
                                 <div class="col-12">
                                     <label class="form-label fw-bold">Order Status</label>
                                     <select name="status" class="form-select @error('status') is-invalid @enderror"
-                                        {{ $order->status === 'cancelled' ? 'disabled' : '' }}>
-                                        <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Pending</option>
-                                        <option value="processing" {{ $order->status == 'processing' ? 'selected' : '' }}>Processing</option>
-                                        <option value="shipped" {{ $order->status == 'shipped' ? 'selected' : '' }}>Shipped</option>
-                                        <option value="delivered" {{ $order->status == 'delivered' ? 'selected' : '' }}>Delivered</option>
-                                        <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                        {{ $order->status->name === \App\Enums\OrderStatusEnum::Cancelled ? 'disabled' : '' }}>
+                                        @foreach($statuses as $status)
+                                            <option value="{{ $status->name->value }}"
+                                                {{ $order->status_id == $status->id ? 'selected' : '' }}
+                                                {{ $order->status->name === \App\Enums\OrderStatusEnum::Cancelled ? 'disabled' : '' }}>
+                                                {{ $status->label }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                     @error('status') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>

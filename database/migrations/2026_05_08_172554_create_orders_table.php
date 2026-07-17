@@ -17,12 +17,15 @@ return new class extends Migration
             $table->string('order_number')->unique();
             $table->decimal('total_price', 10, 2);
             $table->boolean('discount')->default(false);
-            $table->string('status')->default('pending');
+            $table->foreignId('status_id')->constrained('order_statuses')->restrictOnDelete();
+            $table->text('cancel_reason')->nullable();
             $table->string('address');
             $table->string('city');
             $table->string('country');
             $table->string('phone_number');
             $table->text('notes')->nullable();
+            $table->string('promo_code')->nullable();
+            $table->decimal('discount_percent', 5, 2)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

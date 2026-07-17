@@ -23,13 +23,8 @@
                                         <span class="text-muted small">{{ $order->created_at->format('d M Y') }}</span>
 
                                         <span class="fw-bold">{{ $order->total_price }} $</span>
-                                        <span class="badge rounded-pill px-3 py-2
-                                            {{ $order->status == 'pending' ? 'badge-pending' : '' }}
-                                            {{ $order->status == 'processing' ? 'bg-info' : '' }}
-                                            {{ $order->status == 'shipped' ? 'bg-primary' : '' }}
-                                            {{ $order->status == 'delivered' ? 'badge-success' : '' }}
-                                            {{ $order->status == 'cancelled' ? 'badge-cancelled' : '' }}">
-                                            {{ ucfirst($order->status) }}
+                                        <span class="badge rounded-pill px-3 py-2 {{ $order->status->color }}">
+                                            {{ $order->status->label }}
                                         </span>
                                     </div>
                                 </button>
@@ -71,12 +66,13 @@
                                         </div>
                                         <div class="col-md-6 text-end">
                                             @if($order->discount)
-                                                <p class="text-end text-success mb-3">Congrats you used our promo code 'ICT20' for discount: <strong>-20%</strong></p>
+                                                <p class="text-end text-success mb-3">Congrats you used our promo code
+                                                    {{ $order->promo_code }} for discount: <strong>-{{ round($order->discount_percent, 2) }}%</strong></p>
                                             @endif
                                             <h5 class="fw-bold text-primary">Total: {{ $order->total_price }} $</h5>
                                         </div>
                                     </div>
-                                    @if($order->status === 'pending')
+                                    @if($order->status_id === $pendingStatus->id)
                                         <div class="text-end mt-2">
                                             <button class="btn btn-sm btn-outline-danger rounded-pill px-3 btn-cancel-order"
                                                     data-id="{{ $order->id }}">
@@ -101,39 +97,74 @@
         </div>
     </div>
 
+
+    <div class="modal fade" id="cancelModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">Cancel Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted">Please tell us why you want to cancel this order</p>
+                    <textarea id="cancelReason" class="form-control" rows="4"
+                              placeholder="Enter reason for cancellation..."></textarea>
+                    <div id="cancelReasonError" class="text-danger small mt-1 d-none">
+                        Please enter a reason for cancellation
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4"
+                            data-bs-dismiss="modal">Keep Order</button>
+                    <button type="button" class="btn btn-danger rounded-pill px-4"
+                            id="confirmCancelBtn">Cancel Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 @section('additional-scripts')
     <script>
-        $(document).on('click', '.btn-cancel-order', function() {
-            var orderId = $(this).data('id');
-            var btn = $(this);
+        var cancelOrderId;
+        var cancelBtn;
+        var cancelModal = new bootstrap.Modal(document.getElementById('cancelModal'));
 
-            showConfirm('Are you sure you want to cancel this order? This cannot be undone.', function() {
-                $.ajax({
-                    url: '/my-orders/' + orderId + '/cancel',
-                    method: 'POST',
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr('content'),
-                        _method: 'PATCH'
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            btn.closest('.accordion-item').find('.badge')
-                                .removeClass('badge-pending bg-info bg-primary badge-success')
-                                .addClass('badge-cancelled')
-                                .text('Cancelled');
-                            btn.closest('.text-end').remove();
-                            showToast(response.message);
-                        } else {
-                            showToast(response.message, false);
-                        }
+        $(document).on('click', '.btn-cancel-order', function() {
+            cancelOrderId = $(this).data('id');
+            cancelBtn = $(this);
+            $('#cancelReason').val('');
+            $('#cancelReasonError').addClass('d-none');
+            cancelModal.show();
+        });
+
+        $('#confirmCancelBtn').on('click', function() {
+            var reason = $('#cancelReason').val().trim();
+
+            if (!reason) {
+                $('#cancelReasonError').removeClass('d-none');
+                return;
+            }
+
+            $.ajax({
+                url: '/my-orders/' + cancelOrderId + '/cancel',
+                method: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    _method: 'PATCH',
+                    cancel_reason: reason,
+                },
+                success: function(response) {
+                    if (response.success) {
+                        cancelModal.hide();
+                        cancelBtn.closest('.accordion-item').find('.badge')
+                            .attr('class', 'badge rounded-pill px-3 py-2 badge-cancelled')
+                            .text('Cancelled');
+                        cancelBtn.closest('.text-end').remove();
+                        showToast(response.message);
+                    } else {
+                        showToast(response.message, false);
                     }
-                });
-            }, {
-                title: 'Cancel Order',
-                icon: 'fa-times-circle text-danger',
-                btnClass: 'btn-danger',
-                btnText: 'Yes, Cancel Order'
+                }
             });
         });
     </script>

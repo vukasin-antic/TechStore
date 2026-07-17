@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Admin\AdminBrandController;
 use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -12,17 +13,23 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\Admin\AdminProductController;
 use Illuminate\Support\Facades\Route;
-
+Route::get('/debug-session', function () {
+    dd(session()->all());
+})->name('debug.session');
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/shop', [ShopController::class, 'index'])->name('shop');
-Route::get('/shop/product/{id}', [ProductController::class, 'show'])->name('product.show');
+Route::get('/shop/product/{id}', [ProductController::class, 'show'])
+     ->name('product.show')
+     ->middleware('track.viewed');;
 Route::view('/contact', 'pages.contact')->name('contact');
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 Route::view('/author', 'pages.author')->name('author');
@@ -32,8 +39,10 @@ Route::middleware('CheckGuest')->group(function () {
     Route::post('/login', [LoginController::class, 'login'])->name('login.store');
     Route::view('/register', 'auth.register')->name('register');
     Route::post('/register', [RegisterController::class, 'register'])->name('register.store');
+    Route::get('/verify', [VerificationController::class, 'show'])->name('verify.show');
+    Route::post('/verify', [VerificationController::class, 'verify'])->name('verify.store');
+    Route::post('/verify/resend', [VerificationController::class, 'resend'])->name('verify.resend');
 });
-
 
 // add/delete/update cart || checkout/orders
 Route::middleware('CheckAuth')->group(function () {
@@ -50,10 +59,17 @@ Route::middleware('CheckAuth')->group(function () {
     Route::get('/order/confirmation/{id}', [OrderController::class, 'confirmation'])->name('order.confirmation');
     Route::get('/my-orders', [OrderController::class, 'myOrders'])->name('orders.index');
     Route::patch('/my-orders/{id}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
-
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'changePassword'])->name('profile.password');
+
+    Route::post('/address', [AddressController::class, 'store'])->name('address.store');
+    Route::put('/address/{address}', [AddressController::class, 'update'])->name('address.update');
+    Route::delete('/address/{address}', [AddressController::class, 'destroy'])->name('address.destroy');
+
+    Route::post('/shop/product/{id}/review', [ReviewController::class, 'store'])->name('review.store');
+    Route::delete('/review/{review}', [ReviewController::class, 'destroy'])->name('review.destroy');
+
 
 });
 

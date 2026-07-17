@@ -1,32 +1,65 @@
 @if ($paginator->hasPages())
-    <nav class="d-flex justify-content-center">
-        <ul class="pagination">
-            @if ($paginator->onFirstPage())
-                <li class="page-item disabled"><span class="page-link">&lsaquo;</span></li>
-            @else
-                <li class="page-item"><a class="page-link" href="{{ $paginator->previousPageUrl() }}">&lsaquo;</a></li>
-            @endif
+    <ul class="pagination">
+        {{-- Strelica za nazad --}}
+        @if ($paginator->onFirstPage())
+            <li class="page-item disabled"><span class="page-link">&lsaquo;</span></li>
+        @else
+            <li class="page-item"><a class="page-link" href="{{ $paginator->previousPageUrl() }}">&lsaquo;</a></li>
+        @endif
 
-            @foreach ($elements as $element)
-                @if (is_string($element))
-                    <li class="page-item disabled"><span class="page-link">{{ $element }}</span></li>
-                @endif
-                @if (is_array($element))
-                    @foreach ($element as $page => $url)
-                        @if ($page == $paginator->currentPage())
-                            <li class="page-item active"><span class="page-link">{{ $page }}</span></li>
-                        @else
-                            <li class="page-item"><a class="page-link" href="{{ $url }}">{{ $page }}</a></li>
-                        @endif
-                    @endforeach
-                @endif
-            @endforeach
+        {{-- Logika za izračunavanje raspona brojeva --}}
+        @php
+            $current = $paginator->currentPage();
+            $last = $paginator->lastPage();
+            $onEachSide = 1; // Broj elemenata levo i desno od trenutnog
 
-            @if ($paginator->hasMorePages())
-                <li class="page-item"><a class="page-link" href="{{ $paginator->nextPageUrl() }}">&rsaquo;</a></li>
-            @else
-                <li class="page-item disabled"><span class="page-link">&rsaquo;</span></li>
+            $start = $current - $onEachSide;
+            $end = $current + $onEachSide;
+
+            // Korekcija ako smo na prvoj ili drugoj stranici (prikazuje 1 2 3)
+            if ($current <= 2) {
+                $end = 3;
+            }
+            // Korekcija ako smo na poslednjoj ili pretposlednjoj (prikazuje npr. 18 19 20)
+            if ($current >= $last - 1) {
+                $start = $last - 2;
+            }
+
+            // Osiguravamo da ne idemo ispod 1 ili iznad poslednje stranice
+            $start = max(1, $start);
+            $end = min($last, $end);
+        @endphp
+
+        {{-- Prva stranica i tačkice sa leve strane --}}
+        @if ($start > 1)
+            <li class="page-item"><a class="page-link" href="{{ $paginator->url(1) }}">1</a></li>
+            @if ($start > 2)
+                <li class="page-item disabled"><span class="page-link">...</span></li>
             @endif
-        </ul>
-    </nav>
+        @endif
+
+        {{-- Brojevi u sredini (na osnovu $start i $end) --}}
+        @for ($i = $start; $i <= $end; $i++)
+            @if ($i == $current)
+                <li class="page-item active"><span class="page-link">{{ $i }}</span></li>
+            @else
+                <li class="page-item"><a class="page-link" href="{{ $paginator->url($i) }}">{{ $i }}</a></li>
+            @endif
+        @endfor
+
+        {{-- Tačkice sa desne strane i poslednja stranica --}}
+        @if ($end < $last)
+            @if ($end < $last - 1)
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+            @endif
+            <li class="page-item"><a class="page-link" href="{{ $paginator->url($last) }}">{{ $last }}</a></li>
+        @endif
+
+        {{-- Strelica za napred --}}
+        @if ($paginator->hasMorePages())
+            <li class="page-item"><a class="page-link" href="{{ $paginator->nextPageUrl() }}">&rsaquo;</a></li>
+        @else
+            <li class="page-item disabled"><span class="page-link">&rsaquo;</span></li>
+        @endif
+    </ul>
 @endif

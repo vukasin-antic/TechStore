@@ -134,6 +134,31 @@
     }
 
 
+    var recentCarousel = $(".recently-viewed-carousel");
+    if (recentCarousel.length) {
+        var count = parseInt(recentCarousel.data('count'));
+        recentCarousel.owlCarousel({
+            autoplay: false,
+            smartSpeed: 1500,
+            dots: false,
+            loop: count > 3,
+            margin: 25,
+            nav: true,
+            navText: [
+                '<i class="fas fa-chevron-left"></i>',
+                '<i class="fas fa-chevron-right"></i>'
+            ],
+            responsiveClass: true,
+            responsive: {
+                0: { items: 1 },
+                576: { items: 1 },
+                768: { items: 2 },
+                992: { items: 3 },
+                1200: { items: 4 }
+            }
+        });
+    }
+
    // Back to top button
    $(window).scroll(function () {
     if ($(this).scrollTop() > 300) {
@@ -150,14 +175,7 @@
 
 
 
-    // MOJ JS [AJAX]
-
-    $('.inventory-table').each(function(){
-        $(this).find('tr:even').css('background-color','#f8f9fa')
-    });
-
-    var promoApplied = false;
-
+// MOJ JS [AJAX]
     window.showToast = function(message, success = true) {
         var toast = document.getElementById('cartToast');
         document.getElementById('toastMessage').innerHTML = message;
@@ -167,14 +185,16 @@
         bsToast.show();
     }
 
-    function updateCartTotals(cartTotal) {
+    function updateCartTotals(cartTotal, discount = 0, finalTotal = null, discountPercent = 0) {
         $('#cart-subtotal').text(cartTotal + ' $');
-        if (promoApplied) {
-            var discount = cartTotal * 0.20;
-            var finalTotal = cartTotal - discount;
+
+        if (discountPercent > 0) {
+            $('#discount-row').removeClass('d-none');
             $('#cart-discount').text('-' + discount.toFixed(2) + ' $');
             $('#cart-total').text(finalTotal.toFixed(2) + ' $');
+            $('#discount-label').text('Discount: ' + discountPercent + '%');
         } else {
+            $('#discount-row').addClass('d-none');
             $('#cart-total').text(cartTotal + ' $');
         }
     }
@@ -182,10 +202,12 @@
 // Add to Cart
     $(document).on('click', '.btn-add-to-cart', function() {
         var quantity = parseInt($('.quantity input').val()) || 0;
+
         if (quantity < 1) {
             showToast('Please select at least 1 item.', false);
             return;
         }
+
         $.ajax({
             url: '/cart/add',
             method: 'POST',
@@ -230,7 +252,13 @@
                     $('#cart-item-' + cartItemId + ' .item-quantity').val(response.quantity);
                     $('#item-total-' + cartItemId).text(response.itemTotal + ' $');
                     $('#cart-count').text(response.cartCount);
-                    updateCartTotals(response.cartTotal);
+
+                    updateCartTotals(
+                        response.cartTotal,
+                        response.discount,
+                        response.finalTotal,
+                        response.discountPercent
+                    );
                 } else {
                     showToast(response.message, false);
                 }
@@ -246,6 +274,7 @@
         if (!cartItemId) {
             var input = $(this).closest('.quantity').find('input');
             var val = parseInt(input.val()) || 1;
+
             if ($(this).hasClass('btn-plus')) {
                 input.val(val + 1);
             } else {
@@ -266,9 +295,15 @@
                     $('#cart-item-' + cartItemId + ' .item-quantity').val(response.quantity);
                     $('#item-total-' + cartItemId).text(response.itemTotal + ' $');
                     $('#cart-count').text(response.cartCount);
-                    updateCartTotals(response.cartTotal);
+
+                    updateCartTotals(
+                        response.cartTotal,
+                        response.discount,
+                        response.finalTotal,
+                        response.discountPercent
+                    );
                 } else {
-                    showToast(response.message);
+                    showToast(response.message, false);
                 }
             }
         });
@@ -288,7 +323,14 @@
                 if (response.success) {
                     $('#cart-item-' + cartItemId).remove();
                     $('#cart-count').text(response.cartCount);
-                    updateCartTotals(response.cartTotal);
+
+                    updateCartTotals(
+                        response.cartTotal,
+                        response.discount,
+                        response.finalTotal,
+                        response.discountPercent
+                    );
+
                     if (response.cartCount == 0) {
                         location.reload();
                     }
@@ -297,41 +339,7 @@
         });
     });
 
-// Apply promo code
-    $('#applyPromo').on('click', function() {
-        var code = $('#promoCode').val();
-
-        if (!code) {
-            $('#promoMessage').text('Please enter a promo code').addClass('text-danger');
-            return;
-        }
-
-        $.ajax({
-            url: '/cart/promo',
-            method: 'POST',
-            data: {
-                _token: $('meta[name="csrf-token"]').attr('content'),
-                code: code,
-            },
-            success: function(response) {
-                if (response.success) {
-                    promoApplied = true;
-                    $('#promoMessage').text(response.message).removeClass('text-danger').addClass('text-success');
-                    $('#discount-row').removeClass('d-none');
-                    $('#cart-discount').text('-' + response.discount + ' $');
-                    $('#cart-total').text(response.finalTotal + ' $');
-                } else {
-                    promoApplied = false;
-                    $('#promoMessage').text(response.message).removeClass('text-success').addClass('text-danger');
-                    $('#discount-row').addClass('d-none');
-                    var cartTotal = parseFloat($('#cart-subtotal').text());
-                    $('#cart-total').text(cartTotal + ' $');
-                }
-            }
-        });
-    });
-
-    // Delete image
+// Delete image
     $(document).on('click', '.btn-delete-image', function() {
         var imageId = $(this).data('id');
         var btn = $(this);
@@ -353,7 +361,7 @@
         });
     });
 
-    // Set primary image
+// Set primary image
     $(document).on('click', '.btn-set-primary', function() {
         var imageId = $(this).data('id');
 

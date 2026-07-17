@@ -102,6 +102,181 @@
 
                 <!-- Right side - Order history -->
                 <div class="col-lg-8">
+                    <!-- Add Address Form -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="fw-bold mb-0">My Addresses</h5>
+                                <button class="btn btn-primary rounded-pill px-4" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#add-address-form">
+                                    <i class="fas fa-plus me-2"></i> Add Address
+                                </button>
+                            </div>
+                            @if(session('address_success'))
+                                <div class="alert alert-success">{{ session('address_success') }}</div>
+                            @endif
+
+                            @if($errors->any())
+                                <div class="alert alert-warning">{{ $errors->first() }}</div>
+                            @endif
+
+                            {{-- Forma za dodavanje - sakrivena po defaultu --}}
+                            <div class="collapse mb-4" id="add-address-form">
+                                <div class="border rounded p-3">
+                                    <h6 class="fw-bold mb-3">New Address</h6>
+                                    <form action="{{ route('address.store') }}" method="POST">
+                                        @csrf
+                                        <div class="row g-3">
+                                            <div class="col-12">
+                                                <label class="form-label fw-bold">Label <span class="text-muted small">(optional)</span></label>
+                                                <input type="text" name="label" class="form-control"
+                                                       value="{{ old('label') }}" placeholder="e.g. Home, Work...">
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label fw-bold">Address</label>
+                                                <input type="text" name="address" class="form-control @error('address') is-invalid @enderror"
+                                                       value="{{ old('address') }}" placeholder="Street address" required>
+                                                @error('address') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold">City</label>
+                                                <input type="text" name="city" class="form-control @error('city') is-invalid @enderror"
+                                                       value="{{ old('city') }}" placeholder="City" required>
+                                                @error('city') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold">Country</label>
+                                                <input type="text" name="country" class="form-control @error('country') is-invalid @enderror"
+                                                       value="{{ old('country') }}" placeholder="Country" required>
+                                                @error('country') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold">Phone Number</label>
+                                                <input type="text" name="phone_number" class="form-control @error('phone_number') is-invalid @enderror"
+                                                       value="{{ old('phone_number') }}" placeholder="Phone number" required>
+                                                @error('phone_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                            </div>
+                                            <div class="col-md-6 d-flex align-items-end">
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="checkbox" name="is_default" id="is_default" value="1">
+                                                    <label class="form-check-label fw-bold" for="is_default">Set as default</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                                    <i class="fas fa-save me-2"></i> Save Address
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            {{-- Prikaz postojecih adresa --}}
+                            @if($user->addresses->count() > 0)
+                                @foreach($user->addresses as $address)
+                                    <div class="border rounded p-3 mb-3">
+                                        {{-- Prikaz adrese --}}
+                                        <div id="view-{{ $address->id }}">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    @if($address->label)
+                                                        <span class="fw-bold">{{ $address->label }}</span> —
+                                                    @endif
+                                                    {{ $address->address }}, {{ $address->city }}, {{ $address->country }}
+                                                    <br>
+                                                    <small class="text-muted">{{ $address->phone_number }}</small>
+                                                    @if($address->is_default)
+                                                        <span class="badge bg-primary ms-2">Default</span>
+                                                    @endif
+                                                </div>
+                                                <div class="d-flex gap-2">
+                                                    <button class="btn btn-sm btn-warning rounded-pill"
+                                                            onclick="toggleEdit({{ $address->id }})">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <form action="{{ route('address.destroy', $address->id) }}" method="POST"
+                                                          onsubmit="return confirm('Are you sure you want to delete this address?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-danger rounded-pill">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {{-- Edit forma - sakrivena po defaultu --}}
+                                        <div id="edit-{{ $address->id }}" class="d-none mt-3">
+                                            <form action="{{ route('address.update', $address->id) }}" method="POST">
+                                                @csrf
+                                                @method('PUT')
+                                                <div class="row g-3">
+                                                    <div class="col-12">
+                                                        <label class="form-label fw-bold">Label <span class="text-muted small">(optional)</span></label>
+                                                        <input type="text" name="label" class="form-control"
+                                                               value="{{ $address->label }}" placeholder="e.g. Home, Work...">
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label class="form-label fw-bold">Address</label>
+                                                        <input type="text" name="address" class="form-control @error('address') is-invalid @enderror"
+                                                               value="{{ $address->address }}" placeholder="Street address" required>
+                                                        @error('address') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-bold">City</label>
+                                                        <input type="text" name="city" class="form-control @error('city') is-invalid @enderror"
+                                                               value="{{ $address->city }}" placeholder="City" required>
+                                                        @error('city') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-bold">Country</label>
+                                                        <input type="text" name="country" class="form-control @error('country') is-invalid @enderror"
+                                                               value="{{ $address->country }}" placeholder="Country" required>
+                                                        @error('country') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-bold">Phone Number</label>
+                                                        <input type="text" name="phone_number" class="form-control @error('phone_number') is-invalid @enderror"
+                                                               value="{{ $address->phone_number }}" placeholder="Phone number" required>
+                                                        @error('phone_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                                    </div>
+                                                    <div class="col-md-6 d-flex align-items-end">
+                                                        <div class="form-check mb-2">
+{{--                                                            <input class="form-check-input" type="checkbox" name="is_default" id="is_default" value="1">--}}
+{{--                                                            <label class="form-check-label fw-bold" for="is_default">Set as default</label>--}}
+                                                            <input class="form-check-input" type="checkbox" name="is_default"
+                                                                   id="edit_default_{{ $address->id }}" value="1"
+                                                                {{ $address->is_default ? 'checked' : '' }}>
+                                                            <label class="form-check-label" for="edit_default_{{ $address->id }}">Set as default</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12 d-flex gap-2">
+                                                        <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3">
+                                                            <i class="fas fa-save me-1"></i> Save
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3"
+                                                                onclick="toggleEdit({{ $address->id }})">
+                                                            Cancel
+                                                        </button>
+                                                    </div>
+
+                                                </div>
+                                            </form>
+                                        </div>
+
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="text-center py-4 text-muted">
+                                    <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
+                                    <p class="mb-0">No saved addresses yet.</p>
+                                </div>
+                            @endif
+
+                        </div>
+                    </div>
                     <div class="card border-0 shadow-sm">
                         <div class="card-body p-4">
                             <h5 class="fw-bold mb-4">Order History</h5>
@@ -116,13 +291,8 @@
                                                         <span class="fw-bold text-primary">{{ $order->order_number }}</span>
                                                         <span class="text-muted small">{{ $order->created_at->format('d M Y') }}</span>
                                                         <span class="fw-bold">{{ $order->total_price }} $</span>
-                                                        <span class="badge rounded-pill px-3 py-2
-                                                            {{ $order->status == 'pending' ? 'badge-pending' : '' }}
-                                                            {{ $order->status == 'processing' ? 'bg-info' : '' }}
-                                                            {{ $order->status == 'shipped' ? 'bg-primary' : '' }}
-                                                            {{ $order->status == 'delivered' ? 'badge-success' : '' }}
-                                                            {{ $order->status == 'cancelled' ? 'badge-cancelled' : '' }}">
-                                                            {{ ucfirst($order->status) }}
+                                                        <span class="badge rounded-pill px-3 py-2 {{ $order->status->color }}">
+                                                            {{ $order->status->label }}
                                                         </span>
                                                     </div>
                                                 </button>
@@ -172,4 +342,12 @@
         </div>
     </div>
 
+@endsection
+@section('additional-scripts')
+    <script>
+        function toggleEdit(id) {
+            document.getElementById('view-' + id).classList.toggle('d-none');
+            document.getElementById('edit-' + id).classList.toggle('d-none');
+        }
+    </script>
 @endsection

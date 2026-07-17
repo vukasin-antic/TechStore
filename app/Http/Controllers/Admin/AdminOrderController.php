@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\OrderStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Models\Order;
+use App\Models\OrderStatus;
 use Illuminate\Http\Request;
 
 class AdminOrderController extends Controller
@@ -20,8 +22,8 @@ class AdminOrderController extends Controller
             if($request->search){
                 $query->where('order_number', 'like', '%'.$request->search.'%');
             }
-            if($request->status){
-                $query->where('status', $request->status);
+            if ($request->status){
+                $query->whereHas('status', fn($q) => $q->where('name', $request->status));
             }
             if ($request->discount) {
                 $query->where('discount', $request->discount == 'yes' ? true : false);
@@ -88,6 +90,7 @@ class AdminOrderController extends Controller
     {
         try {
             $this->data['order'] = Order::with('orderItems.product', 'user')->findOrFail($id);
+            $this->data['statuses'] = OrderStatus::all();
             return view('admin.orders.edit', $this->data);
         } catch (\Exception $e) {
             return redirect()->route('admin.orders.index')->with('error', 'Order not found!');
@@ -101,13 +104,14 @@ class AdminOrderController extends Controller
     {
         try{
             $order = Order::findOrFail($id);
+            $status = OrderStatus::where('name', $request->status)->firstOrFail();
 
-            if ($order->status === 'cancelled') {
+            if ($order->status->name === OrderStatusEnum::Cancelled) {
                 return redirect()->back()->with('error', 'Cancelled orders cannot be modified!');
             }
 
             $order->update([
-                'status' => $request->status,
+                'status_id' => $status->id
             ]);
 
             return redirect()->route('admin.orders.index')->with('success', 'Order status updated!');
@@ -125,14 +129,11 @@ class AdminOrderController extends Controller
         try{
             $order = Order::with('orderItems.product')->findOrFail($id);
 
-            if($order->status !== 'cancelled'){
+            if ($order->status->name !== OrderStatusEnum::Cancelled) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Order cannot be deleted if its not cancelled!'
                 ]);
-            }
-            foreach ($order->orderItems as $item) {
-                $item->product->increment('stock', $item->quantity);
             }
 
             $order->delete();

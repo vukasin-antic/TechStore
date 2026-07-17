@@ -18,9 +18,20 @@
                 <form method="POST" action="{{ route('login') }}" class="border shadow p-4 rounded">
                     @csrf
                     <h2 class="text-center mb-4">Login</h2>
+                    @if(session('status'))
+                        <div class="alert alert-success m-0 py-2 mb-3">
+                            <i class="fas fa-check-circle me-2"></i>{{ session('status') }}
+                        </div>
+                    @endif
                     @if($errors->has('credentials'))
                         <div class="alert alert-warning m-0 py-2">
                             <i class="fas fa-exclamation-triangle me-2"></i>{{ $errors->first('credentials') }}
+                        </div>
+                    @endif
+                    @if($errors->has('not_verified'))
+                        <div class="alert alert-warning m-0 py-2">
+                            <i class="fas fa-exclamation-triangle me-2"></i>{{ $errors->first('not_verified') }}.
+                            <a href="{{ route('verify.show') }}" class="alert-link">Verify now</a>
                         </div>
                     @endif
                     <div class="mb-3">

@@ -64,13 +64,8 @@
                                     <td class="text-center">{{ $order->orderItems->count() }}</td>
                                     <td class="text-center">{{ $order->total_price }} $</td>
                                     <td class="text-center">
-                            <span class="badge rounded-pill px-3 py-2
-                                {{ $order->status == 'pending' ? 'badge-pending' : '' }}
-                                {{ $order->status == 'processing' ? 'bg-info' : '' }}
-                                {{ $order->status == 'shipped' ? 'bg-primary' : '' }}
-                                {{ $order->status == 'delivered' ? 'badge-success' : '' }}
-                                {{ $order->status == 'cancelled' ? 'badge-cancelled' : '' }}">
-                                {{ ucfirst($order->status) }}
+                            <span class="badge rounded-pill px-3 py-2 {{ $order->status->color }}">
+                                {{ $order->status->label }}
                             </span>
                                     </td>
                                     <td class="text-center">{{ $order->created_at->format('d M Y') }}</td>

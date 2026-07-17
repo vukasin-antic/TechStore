@@ -7,7 +7,7 @@
 
 
     <!-- Single Product -->
-    <div class="container-fluid shop py-5">
+    <div class="container-fluid shop py-5 bg-white">
         <div class="container py-5">
             <div class="row g-4">
                 <div class="col-lg-12 wow fadeInUp" data-wow-delay="0.1s">
@@ -27,7 +27,7 @@
                         </div>
 
                         <!-- Product Info -->
-                        <div class="col-xl-6">
+                        <div class="col-xl-6 text-center">
                             <h4 class="fw-bold mb-3">{{ $product->name }}</h4>
                             <p class="mb-1">Category: <span class="text-primary">{{ $product->category->name }}</span></p>
                             <p class="mb-3">Brand: <span class="text-primary">{{ $product->brand->name }}</span></p>
@@ -42,7 +42,7 @@
                                 </small>
                             </div>
                             <p class="mb-4">{{ $product->description }}</p>
-                            <div class="input-group quantity mb-4" style="width: 100px;">
+                            <div class="input-group quantity mb-4" style="width: 100px; margin: 0px auto;">
                                 <div class="input-group-btn">
                                     <button class="btn btn-sm btn-minus rounded-circle bg-light border">
                                         <i class="fa fa-minus"></i>
@@ -63,17 +63,38 @@
 
                         <!-- Specifications -->
                         <div class="col-lg-12">
+                            @if(session('success'))
+                                <div class="alert alert-success alert-dismissible fade show">
+                                    <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            @endif
+                            @if ($errors->any())
+                                <div class="alert alert-danger">
+                                    <ul>
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
                             <nav>
                                 <div class="nav nav-tabs mb-3">
                                     <button class="nav-link active border-white border-bottom-0" type="button"
                                             data-bs-toggle="tab" data-bs-target="#nav-description">Description</button>
                                     <button class="nav-link border-white border-bottom-0" type="button"
                                             data-bs-toggle="tab" data-bs-target="#nav-specs">Specifications</button>
+                                    <button class="nav-link border-white border-bottom-0" type="button"
+                                            data-bs-toggle="tab" data-bs-target="#nav-reviews">Reviews
+                                        @if($averageRating)
+                                            <span class="badge bg-primary ms-1">{{ $averageRating }} ★</span>
+                                        @endif
+                                    </button>
                                 </div>
                             </nav>
                             <div class="tab-content mb-5">
                                 <div class="tab-pane active" id="nav-description">
-                                    <p>{{ $product->description }}</p>
+                                    <p class="text-muted">{{ $product->description }}</p>
                                 </div>
                                 <div class="tab-pane" id="nav-specs">
                                     <table class="table table-bordered">
@@ -86,6 +107,73 @@
                                         @endforeach
                                         </tbody>
                                     </table>
+                                </div>
+                                <div class="tab-pane" id="nav-reviews">
+                                    @if($reviews->count() > 0)
+                                        <div class="mb-4">
+                                            <h5>Average rating: <strong>{{ $averageRating }} / 5</strong>
+                                                ({{ $reviews->count() }} reviews)
+                                            </h5>
+                                        </div>
+                                    @else
+                                        <p class="text-muted">No reviews yet.</p>
+                                    @endif
+
+                                    @foreach($reviews as $review)
+                                        <div class="border rounded p-3 mb-3">
+                                            <div class="d-flex justify-content-between">
+                                                <strong>{{ $review->user->first_name }} {{ $review->user->last_name }}</strong>
+                                                <span class="text-warning">
+                                                    @for($i = 1; $i <= 5; $i++)
+                                                        <i class="fas fa-star{{ $i <= $review->rating ? '' : '-o' }}"></i>
+                                                    @endfor
+                                                </span>
+                                            </div>
+                                            <small class="text-muted">{{ $review->created_at->format('d.m.Y') }}</small>
+                                            @if($review->comment)
+                                                <p class="mt-2 mb-0">{{ $review->comment }}</p>
+                                            @endif
+                                            @if($review->user_id === session('user')['id'] ?? null)
+                                                <form action="{{ route('review.destroy', $review->id) }}" method="POST" class="mt-2">
+                                                    @csrf @method('DELETE')
+                                                    <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                                </form>
+                                            @endif
+                                        </div>
+                                    @endforeach
+
+                                    {{-- Forma za recenziju --}}
+                                    @if($eligibleOrders->count() > 0)
+                                        <div class="mt-4">
+                                            <h6 class="fw-bold">Leave a Review</h6>
+                                            <form action="{{ route('review.store', $product->id) }}" method="POST">
+                                                @csrf
+                                                <div class="mb-3">
+                                                    <label class="form-label">Order</label>
+                                                    <select name="order_id" class="form-select">
+                                                        @foreach($eligibleOrders as $order)
+                                                            <option value="{{ $order->id }}">{{ $order->order_number }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Rating</label>
+                                                    <select name="rating" class="form-select">
+                                                        @for($i = 5; $i >= 1; $i--)
+                                                            <option value="{{ $i }}">{{ $i }} ★</option>
+                                                        @endfor
+                                                    </select>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Comment <span class="text-muted small">(optional)</span></label>
+                                                    <textarea name="comment" class="form-control" rows="3"></textarea>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary rounded-pill px-4">Submit Review</button>
+                                            </form>
+                                        </div>
+{{--                                    @elseif(session('user'))--}}
+{{--                                        <p class="text-muted mt-3">You can only review products from delivered orders.</p>--}}
+                                    @endif
                                 </div>
                             </div>
                         </div>

@@ -5,7 +5,7 @@
 @section('content')
 
     <!-- Carousel Start -->
-    <div class="container-fluid carousel bg-light px-0">
+    <div class="container carousel bg-light px-0">
         <div class="row g-0 justify-content-center">
             <div class="col-12">
                 <div class="header-carousel owl-carousel bg-light py-5">
@@ -45,7 +45,7 @@
     <!-- Carousel End -->
 
     <!-- Services Start -->
-    <div class="container-fluid px-0">
+    <div class="container px-0">
         <div class="row g-0">
             <div class="col-6 col-md-4 col-lg-2 border-start border-end " >
                 <div class="p-4">
@@ -118,8 +118,8 @@
     <!-- Services End -->
 
     <!-- Our Products Start -->
-    <div class="container-fluid bg-light product py-5">
-        <div class="container py-5">
+    <div class="container-fluid  product py-3">
+        <div class="container py-5 bg-light">
             <div class="tab-class">
                 <div class="row g-4">
                     <div class="col-lg-4 text-start">
@@ -155,7 +155,7 @@
     <!-- Our Products End -->
 
     <!-- Product Banner Start -->
-    <div class="container-fluid py-5">
+    <div class="container-fluid pb-5">
         <div class="container">
             <div class="row g-4 justify-content-center">
                 <div class="col-lg-6 " >

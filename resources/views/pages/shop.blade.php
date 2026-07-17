@@ -13,7 +13,7 @@
     ])
 
     <!-- Shop Page Start -->
-    <div class="container-fluid shop py-5">
+    <div class="container-fluid shop py-5 bg-white">
         <div class="container py-5">
             <div class="row g-4">
                 <form action="{{ route('shop') }}" method="GET" id="filterForm">
@@ -36,12 +36,12 @@
                                         <div class="accordion-body px-0">
                                             <ul class="list-unstyled">
                                                 <li class="mb-2">
-                                                    <a href="{{ route('shop', request()->only('brand', 'sort', 'search')) }}"
+                                                    <a href="{{ route('shop', request()->only('brand', 'sort', 'search', 'min_price', 'max_price')) }}"
                                                        class="text-dark {{ !request('category') ? 'fw-bold text-primary' : '' }}">
                                                         All Products
                                                     </a>
                                                 </li>
-                                                @if(request()->hasAny(['category', 'brand', 'spec', 'search', 'sort']))
+                                                @if(request()->hasAny(['category', 'brand', 'spec', 'search', 'sort', 'min_price', 'max_price']))
                                                     <li class="mb-2">
                                                         <a href="{{ route('shop') }}" class="btn btn-sm btn-outline-danger rounded-pill px-3">
                                                             <i class="fas fa-times me-1"></i> Reset Filters
@@ -53,7 +53,7 @@
                                                         @if($category->children->count() > 0)
                                                             <div class="d-flex align-items-center justify-content-between">
                                                                 <span class="fw-bold text-dark">{{ $category->name }}</span>
-                                                                <a href="{{ route('shop', array_merge(request()->only('brand', 'sort', 'search'), ['category' => $category->id])) }}"
+                                                                <a href="{{ route('shop', array_merge(request()->only('brand', 'sort', 'search', 'min_price', 'max_price'), ['category' => $category->id])) }}"
                                                                    class="btn btn-sm text-primary p-0 {{ request('category') == $category->id ? 'fw-bold' : '' }}">
                                                                     See All →
                                                                 </a>
@@ -110,6 +110,64 @@
                                                     </div>
                                                 @endif
                                             @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Price Range -->
+                                <div class="accordion-item border-0">
+                                    <h4 class="accordion-header">
+                                        <button class="accordion-button px-0 bg-white fw-bold" type="button"
+                                                data-bs-toggle="collapse" data-bs-target="#priceCollapse">
+                                            Price Range
+                                        </button>
+                                    </h4>
+                                    <div id="priceCollapse" class="accordion-collapse collapse show">
+                                        <div class="accordion-body px-0">
+
+                                            {{-- Dual range slider --}}
+                                            <div class="price-slider-wrapper position-relative mb-3" style="height: 20px;">
+                                                <div class="price-track position-absolute w-100 rounded"
+                                                     style="height:4px; background:#dee2e6; top:8px;"></div>
+                                                <div class="price-fill position-absolute rounded"
+                                                     id="priceFill"></div>
+                                                <input type="range" class="price-thumb position-absolute" id="thumb_min"
+                                                       min="{{ $minPrice }}" max="{{ $maxPrice }}" step="0.01"
+                                                       value="{{ request('min_price', $minPrice) }}"
+                                                       oninput="syncSlider()">
+                                                <input type="range" class="price-thumb position-absolute" id="thumb_max"
+                                                       min="{{ $minPrice }}" max="{{ $maxPrice }}" step="0.01"
+                                                       value="{{ request('max_price', $maxPrice) }}"
+                                                       oninput="syncSlider()">
+                                            </div>
+
+                                            {{-- Min / Max input polja --}}
+                                            <div class="d-flex align-items-center gap-2 mb-2">
+                                                <div class="input-group input-group-sm">
+                                                    <span class="input-group-text">$</span>
+                                                    <input type="text" class="form-control" id="input_min"
+                                                           min="{{ $minPrice }}" max="{{ $maxPrice }}"
+                                                           value="{{ request('min_price', $minPrice) }}"
+                                                           oninput="syncFromInput('min')">
+                                                </div>
+                                                <span class="text-muted">—</span>
+                                                <div class="input-group input-group-sm">
+                                                    <span class="input-group-text">$</span>
+                                                    <input type="text" class="form-control" id="input_max"
+                                                           min="{{ $minPrice }}" max="{{ $maxPrice }}"
+                                                           value="{{ request('max_price', $maxPrice) }}"
+                                                           oninput="syncFromInput('max')">
+                                                </div>
+                                            </div>
+
+                                            {{-- Skriveni inputi koji se salju u formu --}}
+                                            <input type="hidden" name="min_price" id="min_price" value="{{ request('min_price', $minPrice) }}">
+                                            <input type="hidden" name="max_price" id="max_price" value="{{ request('max_price', $maxPrice) }}">
+
+                                            <button type="button" class="btn btn-sm btn-primary rounded-pill w-100 mt-1"
+                                                    onclick="document.getElementById('filterForm').submit()">
+                                                Apply
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -174,8 +232,37 @@
                                 </div>
                             </div>
 
+
+                            <!-- Recent Product Grid -->
+                            @if(isset($recentlyViewed) && $recentlyViewed->count() > 0)
+                                <div class="container-fluid recently-viewed">
+                                    <div class="mx-auto text-center pb-5" style="max-width: 700px;">
+                                        <h4 class="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">
+                                            Recently Viewed Products
+                                        </h4>
+                                    </div>
+                                    <div class="recently-viewed-carousel owl-carousel pt-4" data-count="{{ $recentlyViewed->count() }}">
+                                        @foreach($recentlyViewed as $r)
+                                            <a href="{{ route('product.show', $r->id) }}" class="text-decoration-none text-dark">
+                                                <div class="border rounded">
+                                                    <div class="product-item-inner-item py-3">
+                                                        <img src="{{ $r->primaryImage->url }}"
+                                                             class="img-fluid w-100 rounded-top" alt="{{ $r->name }}">
+                                                    </div>
+                                                    <div class="text-center rounded-bottom p-4">
+                                                        <span class="d-block mb-2 text-primary">{{ $r->category->name }}</span>
+                                                        <span class="h5 product-name">{{ $r->name }}</span>
+                                                        <span class="text-primary fs-5">{{ $r->price }} $</span>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
                             <!-- Product Grid -->
-                            <div class="row g-4 product">
+                            <div class="row g-4 product mt-1">
                                 @forelse($products as $product)
                                     <div class="col-lg-4">
                                         <a href="{{ route('product.show', $product->id) }}" class="text-decoration-none text-dark">
@@ -202,8 +289,8 @@
                                 @endforelse
 
                                 <!-- Pagination -->
-                                <div class="col-12 mt-5">
-                                    {{ $products->withQueryString()->links('pagination::bootstrap-5') }}
+                                <div class="col-12 mt-5 d-flex justify-content-center">
+                                    {{ $products->withQueryString()->links('vendor.pagination.bootstrap-5') }}
                                 </div>
                             </div>
                         </div>
@@ -214,4 +301,50 @@
     </div>
     <!-- Shop Page End -->
 
+@endsection
+@section('additional-scripts')
+    <script>
+        function syncSlider() {
+            const minThumb = document.getElementById('thumb_min');
+            const maxThumb = document.getElementById('thumb_max');
+            let min = parseFloat(minThumb.value);
+            let max = parseFloat(maxThumb.value);
+
+            // Spreci preklapanje
+            if (min > max) { min = max; minThumb.value = min; }
+            if (max < min) { max = min; maxThumb.value = max; }
+
+            // Sync input polja
+            document.getElementById('input_min').value = min;
+            document.getElementById('input_max').value = max;
+
+            // Sync skrivenih inputa
+            document.getElementById('min_price').value = min;
+            document.getElementById('max_price').value = max;
+
+            // Pomeri fill traku
+            const absMin = parseFloat(minThumb.min);
+            const absMax = parseFloat(minThumb.max);
+            const leftPct  = ((min - absMin) / (absMax - absMin)) * 100;
+            const rightPct = ((max - absMin) / (absMax - absMin)) * 100;
+            document.getElementById('priceFill').style.left  = leftPct  + '%';
+            document.getElementById('priceFill').style.width = (rightPct - leftPct) + '%';
+        }
+
+        function syncFromInput(type) {
+            const minThumb = document.getElementById('thumb_min');
+            const maxThumb = document.getElementById('thumb_max');
+            let min = parseFloat(document.getElementById('input_min').value) || parseFloat(minThumb.min);
+            let max = parseFloat(document.getElementById('input_max').value) || parseFloat(maxThumb.max);
+
+            if (type === 'min' && min > max) min = max;
+            if (type === 'max' && max < min) max = min;
+
+            minThumb.value = min;
+            maxThumb.value = max;
+            syncSlider();
+        }
+
+        document.addEventListener('DOMContentLoaded', syncSlider);
+    </script>
 @endsection

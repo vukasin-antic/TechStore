@@ -120,18 +120,6 @@ class AdminProductController extends Controller
             }
         }
 
-//        if ($request->hasFile('images')) {
-//            foreach ($request->file('images') as $index => $image) {
-//                $filename = time() . '_' . $image->getClientOriginalName();
-//                $image->move(public_path('img/products'), $filename);
-//
-//                $img = ProductImage::create([
-//                    'product_id' => $product->id,
-//                    'image' => $filename,
-//                    'is_primary' => $index === 0, // first image is primary
-//                ]);
-//            }
-//        }
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $index => $image) {
                 $path = $image->store('uploads', 'public');
@@ -145,9 +133,7 @@ class AdminProductController extends Controller
             }
         }
 
-        //dd($product, $img);
         return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
-
     }
 
     /**
@@ -209,18 +195,6 @@ class AdminProductController extends Controller
                 }
             }
 
-//            if ($request->hasFile('images')) {
-//                foreach ($request->file('images') as $image) {
-//                    $filename = time() . '_' . $image->getClientOriginalName();
-//                    $image->move(public_path('img/products'), $filename);
-//                    ProductImage::create([
-//                        'product_id' => $product->id,
-//                        'image' => $filename,
-//                        'is_primary' => false,
-//                    ]);
-//                }
-//            }
-
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $image) {
                     $path = $image->store('uploads', 'public');
@@ -268,13 +242,11 @@ class AdminProductController extends Controller
         try {
             $image = ProductImage::findOrFail($id);
 
-            // Don't allow deleting if it's the only image
             $imageCount = ProductImage::where('product_id', $image->product_id)->count();
             if ($imageCount <= 1) {
                 return response()->json(['success' => false, 'message' => 'Cannot delete the only image!']);
             }
 
-            // If deleting primary, set another as primary
             if ($image->is_primary) {
                 $newPrimary = ProductImage::where('product_id', $image->product_id)
                     ->where('id', '!=', $id)
@@ -297,11 +269,9 @@ class AdminProductController extends Controller
         try {
             $image = ProductImage::findOrFail($id);
 
-            // Remove primary from all images of this product
             ProductImage::where('product_id', $image->product_id)
-                ->update(['is_primary' => false]);
+                        ->update(['is_primary' => false]);
 
-            // Set new primary
             $image->update(['is_primary' => true]);
 
             return response()->json(['success' => true]);

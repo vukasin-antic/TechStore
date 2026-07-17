@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\Address;
 use App\Models\User;
 use Illuminate\Http\Request;
 use function Symfony\Component\String\s;
@@ -13,7 +14,7 @@ class ProfileController extends Controller
     public function edit()
     {
         try{
-            $this->data['user'] = User::findOrFail(session('user')['id']);
+            $this->data['user'] = User::with('addresses')->findOrFail(session('user')['id']);
             $this->data['orders'] = $this->data['user']->orders()->with('orderItems.product')->latest()->get();
             return view('pages.profile', $this->data);
         }

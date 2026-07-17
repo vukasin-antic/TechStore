@@ -55,7 +55,7 @@
                                                         <i class="fa fa-minus"></i>
                                                     </button>
                                                 </div>
-                                                <input type="text" class="form-control form-control-sm text-center border-0 item-quantity"
+                                                <input type="text" class="form-control form-control-sm text-center border-0 item-quantity bg-transparent"
                                                        value="{{ $item->quantity }}" data-id="{{ $item->id }}">
                                                 <div class="input-group-btn">
                                                     <button class="btn btn-sm btn-plus rounded-circle bg-light border"
@@ -97,14 +97,13 @@
                                 {{-- Show total before discount --}}
                                 <div class="d-flex justify-content-between mb-2">
                                     <h5 class="mb-0">Total:</h5>
-                                    <p class="mb-0" id="cart-subtotal">{{ $total }} $</p>
+                                    <p class="mb-0" id="cart-subtotal">{{ round($total , 2) }} $</p>
                                 </div>
 
                                 {{-- Discount row - hidden by default, shows when promo is applied --}}
                                 <div class="d-flex justify-content-between mb-2 text-success {{ session('promo_applied') ? '' : 'd-none' }}" id="discount-row">
-                                    <h5 class="mb-0 text-success">Discount (20%):</h5>
-                                    <p class="mb-0 text-success" id="cart-discount">
-                                        -{{ session('promo_applied') ? round($total * 0.20, 2) : '0.00' }} $
+                                    <h5 class="mb-0 text-success" id="discount-label">Discount: {{ $discountPercent }}%</h5>                                    <p class="mb-0 text-success" id="cart-discount">
+                                        -{{ session('promo_applied') ? round($discount, 2) : '0.00' }} $
                                     </p>
                                 </div>
                             </div>
@@ -113,14 +112,14 @@
                             <div class="py-4 mb-4 border-top border-bottom d-flex justify-content-between">
                                 <h5 class="mb-0 ps-4">Final Total</h5>
                                 <p class="mb-0 pe-4 fw-bold" id="cart-total">
-                                    {{ session('promo_applied') ? round($total - ($total * 0.20), 2) : $total }} $
+                                    {{ round($finalTotal, 2) }} $
                                 </p>
                             </div>
 
                             {{-- Promo code input --}}
                             <div class="px-4 mb-3">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="promoCode" placeholder="Promo code..." value="{{ session('promo_applied') ? 'ICT20' : '' }}">
+                                    <input type="text" class="form-control" id="promoCode" placeholder="Promo code..." value="{{ session('promo_code') ?? '' }}">
                                     <button class="btn btn-outline-primary" id="applyPromo">Apply</button>
                                 </div>
                                 <small id="promoMessage" class="mt-1 d-block"></small>
@@ -148,4 +147,55 @@
     </div>
     <!-- Cart Page End -->
 
+@endsection
+@section('additional-scripts')
+    <script>
+        var itemInCart = document.getElementById('applyPromo');
+
+        if(itemInCart)
+        {
+            itemInCart.addEventListener('click', function () {
+                const code = document.getElementById('promoCode').value.trim().toUpperCase();
+                const message = document.getElementById('promoMessage');
+
+                if (!code) {
+                    message.className = 'mt-1 d-block text-danger';
+                    message.textContent = 'Please enter a promo code.';
+                    return;
+                }
+
+                $.ajax({
+                    url: '{{ route('cart.promo') }}',
+                    method: 'POST',
+                    data: { code: code },
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    success: function(data) {
+                        if (data.success) {
+                            document.getElementById('discount-row').classList.remove('d-none');
+                            document.getElementById('cart-discount').textContent = '-' + data.discount + ' $';
+                            document.getElementById('cart-total').textContent = data.finalTotal + ' $';
+                            document.getElementById('discount-label').innerHTML = 'Discount: ' + data.discountPercent + '%';
+                            message.className = 'mt-1 d-block text-success';
+                            message.textContent = data.message;
+                        }
+                        else {
+                            document.getElementById('discount-row').classList.add('d-none');
+                            document.getElementById('cart-discount').textContent = '-0.00 $';
+
+                            document.getElementById('cart-total').textContent =
+                                document.getElementById('cart-subtotal').textContent;
+
+                            message.className = 'mt-1 d-block text-danger';
+                            message.textContent = data.message;
+                        }
+                    },
+                    error: function() {
+                        message.className = 'mt-1 d-block text-danger';
+                        message.textContent = 'Something went wrong. Please try again.';
+                    }
+                });
+            })
+        }
+
+    </script>
 @endsection

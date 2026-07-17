@@ -29,6 +29,7 @@ class AdminCategoryController extends Controller
             else{
                 $query->with('children');
             }
+
             if ($request->sort == 'newest') {
                 $query->orderBy('id', 'desc');
             } elseif ($request->sort == 'most') {
@@ -38,11 +39,12 @@ class AdminCategoryController extends Controller
             } else {
                 $query->orderBy('id', 'asc');
             }
+
             $this->data['categories'] = $query->paginate(10);
             return view('admin.categories.index', $this->data);
         }
         catch (\Exception $e) {
-            return redirect()->route('admin.categories.index')->with('error', 'Something went wrong!');
+            return redirect()->route('admin.dashboard')->with('error', 'Something went wrong!');
         }
     }
 
@@ -121,22 +123,17 @@ class AdminCategoryController extends Controller
     {
         try{
             $category = Category::findOrFail($id);
-            $products = Product::where('category_id', $id)->get();
-            if($products->count() > 0){
+            if($category->products()->exists()){
                 return response()->json([
                     'success' => false,
                     'message' => 'You cant delete this category because it contains products!'
                 ]);
             }
-            if($category->children->count() > 0)
-            {
+            if($category->children()->exists()){
                 return response()->json([
                     'success' => false,
                     'message' => 'You cant delete this category because it contains other categories!'
                 ]);
-            }
-            if(!$category){
-                return redirect()->route('admin.categories.index')->with('error', 'Category not found!');
             }
             $category->delete();
             return response()->json([

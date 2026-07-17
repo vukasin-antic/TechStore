@@ -32,6 +32,16 @@ class ShopController extends Controller
             $products->whereIn('brand_id', (array) $request->brand);
         }
 
+        if($request->min_price){
+            $products->where('price', '>=', $request->min_price);
+        }
+
+        if($request->max_price){
+            $products->where('price', '<=', $request->max_price);
+        }
+        $this->data['minPrice'] = Product::min('price');
+        $this->data['maxPrice'] = Product::max('price');
+
         if ($request->spec) {
             foreach ($request->spec as $typeId => $values) {
                 $products->whereHas('specifications', fn($q) =>
@@ -55,10 +65,23 @@ class ShopController extends Controller
         $this->data['brands']     = $this->getBrands($request, $selectedCategory);
         $this->data['specTypes']  = $this->getSpecTypes($request, $selectedCategory);
 
+
+        $recentlyViewedIds = session('user')['recentlyViewed'] ?? [];
+        $this->data['recentlyViewed'] = collect();
+
+        if(!empty($recentlyViewedIds)) {
+            $this->data['recentlyViewed'] =
+                Product::with('primaryImage', 'category')
+                        ->whereIn('id', $recentlyViewedIds)
+                        ->get()
+                        ->sortBy(fn($p) => array_search($p->id, $recentlyViewedIds));
+        }
+
+
         return view('pages.shop', $this->data);
     }
 
-// Vraća sve category ID-eve (parent + children) ili null
+
     private function getCategoryIds(?Category $category): ?array
     {
         if (!$category) return null;

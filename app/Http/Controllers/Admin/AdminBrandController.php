@@ -117,8 +117,7 @@ class AdminBrandController extends Controller
     {
         try{
             $brand = Brand::findOrFail($id);
-            $products = Product::where('brand_id', $brand->id)->get();
-            if($products->count() > 0){
+            if($brand->products()->exists()){
                 return response()->json([
                     'success' => false,
                     'message' => 'You cant delete this brand because it contains products!'

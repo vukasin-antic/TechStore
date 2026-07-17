@@ -16,7 +16,8 @@ class SpecificationTypeSeeder extends Seeder
         $types = [
             'Processor', 'RAM', 'Storage', 'GPU', 'Display',
             'Battery', 'OS', 'Connectivity', 'DPI', 'Switch Type',
-            'Resolution', 'Refresh Rate', 'Capacity', 'Speed', 'Camera'
+            'Resolution', 'Refresh Rate', 'Capacity', 'Speed', 'Camera',
+            'Panel Type', 'Interface', 'Weight'
         ];
         foreach ($types as $type) {
             SpecificationType::create(['name' => $type]);

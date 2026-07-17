@@ -45,8 +45,9 @@
                                 <tfoot>
                                 @if($order->discount)
                                     <tr>
-                                        <td colspan="3" class="fw-bold text-end text-success">Congrats you used our promo code 'ICT20' for discount:</td>
-                                        <td class="fw-bold text-success">-20%</td>
+                                        <td colspan="3" class="fw-bold text-end text-success">Congrats you used our promo code
+                                            {{ $order->promo_code }} for discount:</td>
+                                        <td class="fw-bold text-success">-{{ $order->discount_percent + 0 }}%</td>
                                     </tr>
                                 @endif
                                 <tr>

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\OrderStatusEnum;
+use App\Models\OrderStatus;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Traits\CartTrait;
@@ -13,7 +15,9 @@ class OrderController extends Controller
     {
         try
         {
-            $order = Order::with('orderItems.product')->findOrFail($id);
+            $order = Order::with('orderItems.product')
+                ->where('user_id', session('user')['id'])
+                ->findOrFail($id);
             $this->data['order'] = $order;
             return view('pages.confirmation', $this->data);
         }
@@ -31,6 +35,7 @@ class OrderController extends Controller
                 ->where('user_id', session('user')['id'])
                 ->latest()
                 ->get();
+            $this->data['pendingStatus'] = OrderStatus::where('name', OrderStatusEnum::Pending)->first();
             return view('pages.orders', $this->data);
         }
         catch (\Exception $e)
@@ -38,7 +43,7 @@ class OrderController extends Controller
             return redirect()->route('home');
         }
     }
-    public function cancel($id)
+    public function cancel(Request $request, $id)
     {
         try {
             $order = Order::with('orderItems.product')->findOrFail($id);
@@ -47,9 +52,22 @@ class OrderController extends Controller
                 return response()->json(['success' => false, 'message' => 'Unauthorized!']);
             }
 
-            if ($order->status !== 'pending') {
+            $pendingStatus = OrderStatus::where('name', OrderStatusEnum::Pending)->first();
+            if ($order->status_id !== $pendingStatus->id) {
                 return response()->json(['success' => false, 'message' => 'Only pending orders can be cancelled!']);
             }
+
+            $request->validate([
+                'cancel_reason' => 'required|string|max:500',
+            ]);
+
+
+            $cancelledStatus = OrderStatus::where('name', OrderStatusEnum::Cancelled)->first();
+
+            $order->update([
+                'status_id' => $cancelledStatus->id,
+                'cancel_reason' => $request->cancel_reason
+            ]);
 
             foreach ($order->orderItems as $item) {
                 if ($item->product) {
@@ -57,10 +75,9 @@ class OrderController extends Controller
                 }
             }
 
-            $order->update(['status' => 'cancelled']);
 
             return response()->json(['success' => true, 'message' => 'Order cancelled successfully!']);
-        } catch (\Exception $e) {
+        }  catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Something went wrong!']);
         }
     }

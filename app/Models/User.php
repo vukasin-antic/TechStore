@@ -19,7 +19,16 @@ class User extends Authenticatable
         'password',
         'role',
         'is_banned',
+        'verification_code',
+        'email_verified_at',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+        ];
+    }
 
     public function cart()
     {
@@ -36,5 +45,13 @@ class User extends Authenticatable
         return $this->hasMany(Log::class);
     }
 
+    public function addresses()
+    {
+        return $this->hasMany(Address::class);
+    }
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
 }

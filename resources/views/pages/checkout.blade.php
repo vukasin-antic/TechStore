@@ -29,60 +29,80 @@
                             </div>
                         @endif
 
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">First Name</label>
-                                <input type="text" name="first_name" class="form-control @error('first_name') is-invalid @enderror"
-                                       value="{{ $user['first_name'] }}" required>
-                                @error('first_name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                        @if($addresses->count() > 0)
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Saved Addresses</label>
+                                <select name="selected_address" id="selected_address" class="form-select mb-3"
+                                        onchange="handleAddressSelect(this)">
+                                    <option value="" disabled {{ !$addresses->where('is_default', true)->count() ? 'selected' : '' }}>
+                                        -- Select an address --
+                                    </option>
+                                    @foreach($addresses as $address)
+                                        <option value="{{ $address->id }}"
+                                                data-address="{{ $address->address }}"
+                                                data-city="{{ $address->city }}"
+                                                data-country="{{ $address->country }}"
+                                                data-phone="{{ $address->phone_number }}"
+                                            {{ $address->is_default ? 'selected' : '' }}>
+                                            {{ $address->label ? $address->label . ' — ' : '' }}
+                                            {{ $address->address }}, {{ $address->city }}, {{ $address->country }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <input type="hidden" name="selected_address_id" id="selected_address_id" value="">
+                                <button class="btn btn-primary rounded-pill px-4" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#new-address-form"
+                                        onclick="clearSelectedAddress()">
+                                    <i class="fas fa-plus me-2"></i> Add Address
+                                </button>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Last Name</label>
-                                <input type="text" name="last_name" class="form-control @error('last_name') is-invalid @enderror"
-                                       value="{{ $user['last_name'] }}" required>
-                                @error('last_name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                        @endif
+
+                        <div class="{{ $addresses->count() > 0 ? 'collapse' : '' }} mb-4" id="new-address-form">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label">Address</label>
+                                    <input type="text" name="address" id="input_address"
+                                           class="form-control @error('address') is-invalid @enderror"
+                                           value="{{ old('address') }}" placeholder="Street address">
+                                    @error('address')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">City</label>
+                                    <input type="text" name="city" id="input_city"
+                                           class="form-control @error('city') is-invalid @enderror"
+                                           value="{{ old('city') }}" placeholder="City">
+                                    @error('city')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Country</label>
+                                    <input type="text" name="country" id="input_country"
+                                           class="form-control @error('country') is-invalid @enderror"
+                                           value="{{ old('country') }}" placeholder="Country">
+                                    @error('country')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Phone Number</label>
+                                    <input type="text" name="phone_number" id="input_phone"
+                                           class="form-control @error('phone_number') is-invalid @enderror"
+                                           value="{{ old('phone_number') }}" placeholder="Phone number">
+                                    @error('phone_number')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
-                            <div class="col-12">
-                                <label class="form-label">Address</label>
-                                <input type="text" name="address" class="form-control @error('address') is-invalid @enderror"
-                                       value="{{ old('address') }}" placeholder="Street address" required>
-                                @error('address')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">City</label>
-                                <input type="text" name="city" class="form-control @error('city') is-invalid @enderror"
-                                       value="{{ old('city') }}" placeholder="City" required>
-                                @error('city')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Country</label>
-                                <input type="text" name="country" class="form-control @error('country') is-invalid @enderror"
-                                       value="{{ old('country') }}" placeholder="Country" required>
-                                @error('country')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Phone Number</label>
-                                <input type="text" name="phone_number" class="form-control @error('phone_number') is-invalid @enderror"
-                                       value="{{ old('phone_number') }}" placeholder="Phone number" required>
-                                @error('phone_number')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Notes <span class="text-muted small">(optional)</span></label>
-                                <textarea name="notes" class="form-control" rows="3"
-                                          placeholder="Special delivery instructions..."></textarea>
-                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="form-label">Notes <span class="text-muted small">(optional)</span></label>
+                            <textarea name="notes" class="form-control" rows="3"
+                                      placeholder="Special delivery instructions..."></textarea>
                         </div>
                     </div>
 
@@ -104,22 +124,21 @@
 
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Subtotal:</span>
-                                <span>{{ $total }} $</span>
+                                <span>{{ round($total, 2) }} $</span>
                             </div>
 
                             @if(session()->has('promo_applied'))
                                 <div class="d-flex justify-content-between mb-2 text-success">
-                                    <span>Discount (20%):</span>
+                                    <span>Discount ({{ $discountPercent }}):</span>
                                     <span>-{{ round($discount, 2) }} $</span>
                                 </div>
                             @endif
-
 
                             <hr>
 
                             <div class="d-flex justify-content-between mb-4">
                                 <h5 class="mb-0 fw-bold">Total:</h5>
-                                <h5 class="mb-0 fw-bold">{{ round($total - $discount, 2) }} $</h5>
+                                <h5 class="mb-0 fw-bold">{{ round($finalTotal, 2) }} $</h5>
                             </div>
 
                             <button type="submit" class="btn btn-primary rounded-pill w-100 py-3 text-uppercase fw-bold mb-2">
@@ -140,4 +159,40 @@
         var promoApplied = {{ session('promo_applied') ? 'true' : 'false' }};
     </script>
 
+@endsection
+@section('additional-scripts')
+    <script>
+        function handleAddressSelect(select) {
+            const option = select.options[select.selectedIndex];
+            document.getElementById('selected_address_id').value = option.value;
+            document.getElementById('input_address').value = option.dataset.address;
+            document.getElementById('input_city').value    = option.dataset.city;
+            document.getElementById('input_country').value = option.dataset.country;
+            document.getElementById('input_phone').value   = option.dataset.phone;
+
+            const collapse = bootstrap.Collapse.getInstance(document.getElementById('new-address-form'));
+            if (collapse) collapse.hide();
+        }
+
+        function clearSelectedAddress() {
+            document.getElementById('selected_address_id').value = '';
+            document.getElementById('selected_address').value = '';
+            document.getElementById('input_address').value = '';
+            document.getElementById('input_city').value    = '';
+            document.getElementById('input_country').value = '';
+            document.getElementById('input_phone').value   = '';
+        }
+
+        // Pri ucitavanju popuni inpute ako postoji default adresa
+        document.addEventListener('DOMContentLoaded', function () {
+            const select = document.getElementById('selected_address');
+            if (select && select.value)
+            {
+                document.getElementById('selected_address_id').value = select.value;
+                handleAddressSelect(select);
+            }
+        });
+
+        var promoApplied = {{ session('promo_applied') ? 'true' : 'false' }};
+    </script>
 @endsection

@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RegisterRequest;
+use App\Mail\VerificationCodeMail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class RegisterController extends Controller
 {
@@ -15,20 +17,21 @@ class RegisterController extends Controller
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'email' => $request->email,
-                'password' => password_hash($request->password, PASSWORD_BCRYPT)
+                'password' => password_hash($request->password, PASSWORD_BCRYPT),
+                'verification_code' => (string) random_int(100000, 999999),
             ]);
 
-            session(['user' => [
-                'id' => $user->id,
-                'first_name' => $user->first_name,
-                'last_name' => $user->last_name,
-                'email' => $user->email,
-                'role' => $user->role,
-            ]]);
+            session(['verify_email' => $user->email]);
 
-            session(['cart_count' => 0]);
+            try {
+                Mail::to($user->email)->send(new VerificationCodeMail($user));
+            }
+            catch (\Exception $exception) {
+                return redirect()->route('verify.show')
+                    ->withErrors(['resend' => 'We could not send the email, please use the resend button below!']);
+            }
 
-            return redirect()->route('home');
+            return redirect()->route('verify.show');
 
         }
         catch (\Exception $exception){

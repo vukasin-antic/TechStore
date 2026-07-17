@@ -21,10 +21,12 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             BrandSeeder::class,
             CategorySeeder::class,
-            ProductSeeder::class,
             SpecificationTypeSeeder::class,
-            SpecificationSeeder::class,
+            ProductSeeder::class,
             ProductImageSeeder::class,
+            PromoCodeSeeder::class,
+            OrderStatusSeeder::class,
+            OrderSeeder::class,
         ]);
     }
 }

@@ -12,13 +12,8 @@
                     <div class="admin-table mb-4">
                         <div class="table-header">
                             <h5>Order {{ $order->order_number }}</h5>
-                            <span class="badge rounded-pill px-3 py-2
-                                {{ $order->status == 'pending' ? 'badge-pending' : '' }}
-                                {{ $order->status == 'processing' ? 'bg-info' : '' }}
-                                {{ $order->status == 'shipped' ? 'bg-primary' : '' }}
-                                {{ $order->status == 'delivered' ? 'badge-success' : '' }}
-                                {{ $order->status == 'cancelled' ? 'badge-cancelled' : '' }}">
-                                {{ ucfirst($order->status) }}
+                            <span class="badge rounded-pill px-3 py-2 {{ $order->status->color }}">
+                                {{ $order->status->label }}
                             </span>
                         </div>
                         <table class="table">
@@ -48,14 +43,14 @@
                                 <td colspan="3" class="text-end fw-bold">
                                     @if($order->discount)
                                         Subtotal:<br>
-                                        Discount (20%):<br>
+                                        Discount ({{ round($order->discount_percent, 2) }}%):<br>
                                     @endif
                                     Total:
                                 </td>
                                 <td class="fw-bold">
                                     @if($order->discount)
-                                        {{ round($order->total_price / 0.8, 2) }} $<br>
-                                        <span class="text-success">-{{ round($order->total_price / 0.8 * 0.2, 2) }} $</span><br>
+                                        {{ round($order->total_price / (1 - $order->discount_percent / 100), 2) }} $<br>
+                                        <span class="text-success">-{{ round($order->discount_percent, 2) }}%</span><br>
                                     @endif
                                     <span class="text-primary">{{ $order->total_price }} $</span>
                                 </td>
@@ -99,10 +94,14 @@
                         </div>
                         <div class="p-4">
                             <p class="mb-1"><strong>Order #:</strong> {{ $order->order_number }}</p>
+                            <p class="mb-1"><strong class="me-2">Status:</strong><span class="badge rounded-pill px-3 py-2 {{$order->status->color}}">{{ $order->status->label }}</span></p>
+                            @if($order->cancel_reason)
+                                <p class="mb-1"><strong>Cancel reason:</strong> {{ $order->cancel_reason }}</p>
+                            @endif
                             <p class="mb-1"><strong>Date:</strong> {{ $order->created_at->format('d M Y H:i') }}</p>
                             <p class="mb-0"><strong>Discount:</strong>
                                 @if($order->discount)
-                                    <span class="text-success">Yes (20%)</span>
+                                    <span class="text-success">Yes ({{ round($order->discount_percent, 2) }}%)</span>
                                 @else
                                     No
                                 @endif

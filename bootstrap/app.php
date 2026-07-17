@@ -4,6 +4,12 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
+use App\Http\Middleware\LogMiddleware;
+use App\Http\Middleware\CheckAuthMiddleware;
+use App\Http\Middleware\CheckGuestMiddleware;
+use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\RecentlyViewedProductsMiddleware;
+
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -12,11 +18,12 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->validateCsrfTokens();
-        $middleware->web([\App\Http\Middleware\LogMiddleware::class]);
+        $middleware->web([LogMiddleware::class]);
         $middleware->alias([
-            'CheckAuth' => \App\Http\Middleware\CheckAuthMiddleware::class,
-            'CheckGuest' => \App\Http\Middleware\CheckGuestMiddleware::class,
-            'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'CheckAuth' => CheckAuthMiddleware::class,
+            'CheckGuest' => CheckGuestMiddleware::class,
+            'admin' => AdminMiddleware::class,
+            'track.viewed' => RecentlyViewedProductsMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
