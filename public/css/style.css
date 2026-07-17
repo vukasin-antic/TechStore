@@ -662,7 +662,7 @@ label{
     display: inline-block !important;
     background: var(--bs-white);
     color: var(--bs-dark);
-    transition: 0.5;
+    transition: 0.5s;
 }
 
 .shop .product-tags .product-tags-items a:hover {
@@ -910,7 +910,7 @@ label{
 }
 .footer .footer-item a {
     line-height: 30px;
-    color: var(--bs-body);
+    color: var(--bs-light);
     transition: 0.5s;
 }
 

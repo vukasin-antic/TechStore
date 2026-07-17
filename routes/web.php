@@ -22,9 +22,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\Admin\AdminProductController;
 use Illuminate\Support\Facades\Route;
-Route::get('/debug-session', function () {
-    dd(session()->all());
-})->name('debug.session');
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/shop', [ShopController::class, 'index'])->name('shop');
 Route::get('/shop/product/{id}', [ProductController::class, 'show'])

@@ -342,7 +342,6 @@
 // Delete image
     $(document).on('click', '.btn-delete-image', function() {
         var imageId = $(this).data('id');
-        var btn = $(this);
 
         $.ajax({
             url: '/admin/images/' + imageId,
