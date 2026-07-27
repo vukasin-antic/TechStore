@@ -405,4 +405,88 @@
         });
     });
 
+// Live search in header
+    var searchTimer = null;
+
+    function escapeHtml(text) {
+        return $('<span>').text(text).html();
+    }
+
+    function renderSuggestions(response, query, shopUrl) {
+        var box = $('#search-suggestions');
+
+        if (response.products.length === 0) {
+            box.html('<div class="search-suggestion-empty">No products found for "' + escapeHtml(query) + '".</div>');
+            box.removeClass('d-none');
+            return;
+        }
+
+        var cards = response.products.map(function(product) {
+            var image = product.image
+                ? '<img src="' + product.image + '" alt="">'
+                : '<span class="search-suggestion-noimg"><i class="fas fa-image"></i></span>';
+
+            return '<a href="' + product.url + '" class="search-suggestion-item">'
+                + image
+                + '<span class="search-suggestion-name">' + escapeHtml(product.name) + '</span>'
+                + '<span class="search-suggestion-price">' + product.price + ' $</span>'
+                + '</a>';
+        }).join('');
+
+        var header = '<div class="search-suggestions-header">'
+            + '<span>Results for "' + escapeHtml(query) + '"</span>'
+            + '<a href="' + shopUrl + '?search=' + encodeURIComponent(query) + '">View all (' + response.total + ') <i class="fas fa-arrow-right"></i></a>'
+            + '</div>';
+
+        var body = '<div class="search-suggestions-body">'
+            + '<button type="button" class="search-suggestions-nav prev"><i class="fas fa-chevron-left"></i></button>'
+            + '<div class="search-suggestions-track">' + cards + '</div>'
+            + '<button type="button" class="search-suggestions-nav next"><i class="fas fa-chevron-right"></i></button>'
+            + '</div>';
+
+        box.html(header + body);
+        box.removeClass('d-none');
+    }
+
+    $(document).on('input', '#search-input', function() {
+        var input = $(this);
+        var query = input.val().trim();
+
+        clearTimeout(searchTimer);
+
+        if (query.length < 2) {
+            $('#search-suggestions').addClass('d-none').empty();
+            return;
+        }
+
+        searchTimer = setTimeout(function() {
+            $.getJSON(input.data('url'), { q: query }, function(response) {
+                if (input.val().trim() === query) {
+                    renderSuggestions(response, query, input.closest('form').attr('action'));
+                }
+            });
+        }, 300);
+    });
+
+    // Slide suggestions track with arrows
+    $(document).on('click', '.search-suggestions-nav', function() {
+        var track = $(this).siblings('.search-suggestions-track')[0];
+        var amount = $(this).hasClass('next') ? 300 : -300;
+        track.scrollBy({ left: amount, behavior: 'smooth' });
+    });
+
+    // Close suggestions on click outside the search form
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('#search-input, #search-suggestions').length) {
+            $('#search-suggestions').addClass('d-none');
+        }
+    });
+
+    // Reopen on focus if there is a query
+    $(document).on('focus', '#search-input', function() {
+        if ($(this).val().trim().length >= 2 && $('#search-suggestions').children().length) {
+            $('#search-suggestions').removeClass('d-none');
+        }
+    });
+
 })(jQuery);

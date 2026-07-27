@@ -24,36 +24,36 @@
         </div>
         <nav class="mt-3">
             <span class="nav-section">Main</span>
-            <a href="{{ route('admin.dashboard') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+            <a href="{{ route('admin.dashboard') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.dashboard') ? 'admin-active' : '' }}">
                 <i class="fas fa-tachometer-alt"></i> Dashboard
             </a>
 
             <span class="nav-section">Shop</span>
-            <a href="{{ route('admin.products.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.products.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.products.') ? 'admin-active' : '' }}">
                 <i class="fas fa-box"></i> Products
             </a>
-            <a href="{{ route('admin.categories.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.categories.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.categories.') ? 'admin-active' : '' }}">
                 <i class="fas fa-tags"></i> Categories
             </a>
-            <a href="{{ route('admin.brands.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.brands.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.brands.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.brands.') ? 'admin-active' : '' }}">
                 <i class="fas fa-trademark"></i> Brands
             </a>
-            <a href="{{ route('admin.specifications.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.specifications.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.specifications.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.specifications.') ? 'admin-active' : '' }}">
                 <i class="fas fa-cogs"></i> Specifications
             </a>
 
             <span class="nav-section">Orders</span>
-            <a href="{{ route('admin.orders.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.orders.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.orders.') ? 'admin-active' : '' }}">
                 <i class="fas fa-shopping-cart"></i> Orders
             </a>
 
             <span class="nav-section">Users</span>
-            <a href="{{ route('admin.users.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.users.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.users.') ? 'admin-active' : '' }}">
                 <i class="fas fa-users"></i> Users
             </a>
 
             <span class="nav-section">System</span>
-            <a href="{{ route('admin.logs.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.logs.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.logs.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.logs.*') ? 'admin-active' : '' }}">
                 <i class="fas fa-history"></i> Activity Logs
             </a>
 

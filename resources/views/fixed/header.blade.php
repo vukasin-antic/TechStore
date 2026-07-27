@@ -1,31 +1,35 @@
-<div class="container-fluid nav-bar p-0 bg-dark">
-    <div class="container p-lg-0">
-        <div class="row gx-0 py-2 align-items-center">
-            <div class="col-6">
-                <ul class="nav">
-                    @foreach($nav->take(intval($nav->count() / 2)) as $n)
-                        <li class="nav-item nav-link py-0 ps-0">
-                            <a href="{{ route($n->route) }}"
-                               class="ps-0 nav-link text-white {{ request()->routeIs($n->route) ? 'active' : '' }}">
-                                {{ $n->name }}
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
-            </div>
-            <div class="col-6">
-                <ul class="nav justify-content-end">
-                    @foreach($nav->skip(intval($nav->count() / 2)) as $n)
-                        <li class="nav-item nav-link py-0 pe-0">
-                            <a href="{{ route($n->route) }}"
-                               class="pe-0 nav-link text-white {{ request()->routeIs($n->route) ? 'active' : '' }}">
-                                {{ $n->name }}
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
+<div class="container-fluid nav-bar p-0 bg-dark" id="mainNav">
+    <div class="nav-bar-top" id="navBarTop">
+        <div class="container p-lg-0">
+            <div class="row gx-0 py-2 align-items-center">
+                <div class="col-6">
+                    <ul class="nav">
+                        @foreach($nav->take(intval($nav->count() / 2)) as $n)
+                            <li class="nav-item nav-link py-0 ps-0">
+                                <a href="{{ route($n->route) }}"
+                                   class="ps-0 nav-link text-white {{ request()->routeIs($n->route) ? 'active' : '' }}">
+                                    {{ $n->name }}
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+                <div class="col-6">
+                    <ul class="nav justify-content-end">
+                        @foreach($nav->skip(intval($nav->count() / 2)) as $n)
+                            <li class="nav-item nav-link py-0 pe-0">
+                                <a href="{{ route($n->route) }}"
+                                   class="pe-0 nav-link text-white {{ request()->routeIs($n->route) ? 'active' : '' }}">
+                                    {{ $n->name }}
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
             </div>
         </div>
+    </div>
+    <div class="container p-lg-0">
         <div class="row gx-0 py-2 align-items-center">
             <div class="col-lg-3 d-none d-lg-block">
                 <div class="d-inline-flex align-items-center">
@@ -35,13 +39,15 @@
                 </div>
             </div>
             <div class="col-lg-6">
-                <div class="position-relative">
-                    <input type="search" name="search" class="form-control px-3"
-                           placeholder="Search products..." value="">
+                <form action="{{ route('shop') }}" method="GET" class="position-relative" autocomplete="off">
+                    <input type="search" name="search" id="search-input" class="form-control px-3"
+                           placeholder="Search products..." value="{{ request('search') }}"
+                           data-url="{{ route('search.suggestions') }}">
                     <button type="submit" class="position-absolute top-50 end-0 translate-middle-y border-0 bg-transparent me-2">
                         <i class="fa fa-search text-primary"></i>
                     </button>
-                </div>
+                    <div id="search-suggestions" class="position-absolute start-0 end-0 mt-1 d-none"></div>
+                </form>
             </div>
             <div class="col-12 col-lg-3">
                 <nav class="navbar navbar-expand-lg navbar-light mt-2">

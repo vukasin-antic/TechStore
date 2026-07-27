@@ -20,7 +20,10 @@ class AdminOrderController extends Controller
             $query = Order::with('user', 'orderItems');
 
             if($request->search){
-                $query->where('order_number', 'like', '%'.$request->search.'%');
+                $query->where('order_number', 'like', '%'.$request->search.'%')
+                      ->orWhereHas('user', function($q) use($request){
+                          $q->where('first_name', 'like', '%'.$request->search.'%');
+                      });
             }
             if ($request->status){
                 $query->whereHas('status', fn($q) => $q->where('name', $request->status));
