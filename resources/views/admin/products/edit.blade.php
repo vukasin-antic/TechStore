@@ -172,7 +172,6 @@
 @section('additional-scripts')
     <script>
 
-
         function addSpec() {
             var container = document.getElementById('specsContainer');
             var index = container.children.length;
@@ -196,8 +195,6 @@
             var oldSpecs = @json(old('specs', []));
             var existingCount = {{ $product->specifications->count() }};
 
-            // Only restore old specs if there are any
-            // and skip the ones already rendered by Blade
             if (oldSpecs.length > existingCount) {
                 oldSpecs.slice(existingCount).forEach(function(spec) {
                     addSpec(spec.type_id, spec.value);

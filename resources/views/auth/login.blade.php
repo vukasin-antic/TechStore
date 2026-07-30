@@ -30,8 +30,8 @@
                     @endif
                     @if($errors->has('not_verified'))
                         <div class="alert alert-warning m-0 py-2">
-                            <i class="fas fa-exclamation-triangle me-2"></i>{{ $errors->first('not_verified') }}.
-                            <a href="{{ route('verify.show') }}" class="alert-link">Verify now</a>
+                            <i class="fas fa-exclamation-triangle me-2"></i>{{ $errors->first('not_verified') }}
+                            <a href="{{ route('verify.show') }}" class="alert-link"> Verify now</a>
                         </div>
                     @endif
                     <div class="mb-3">
@@ -53,8 +53,6 @@
                         <p class="m-0">
                             Don't have an account? <a href="{{ route('register') }}">Create one right now!</a>
                         </p>
-
-
                     </div>
                 </form>
             </div>

@@ -24,7 +24,7 @@ class LoginController extends Controller
             }
             if (!$user->email_verified_at) {
                 session(['verify_email' => $user->email]);
-                return redirect()->back()->withErrors(['not_verified' => 'Nalog još uvek nije aktivan']);
+                return redirect()->back()->withErrors(['not_verified' => 'Your account has not been activated yet!']);
             }
 
             Auth::loginUsingId($user->id);

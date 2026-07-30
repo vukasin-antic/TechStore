@@ -310,19 +310,15 @@
             let min = parseFloat(minThumb.value);
             let max = parseFloat(maxThumb.value);
 
-            // Spreci preklapanje
             if (min > max) { min = max; minThumb.value = min; }
             if (max < min) { max = min; maxThumb.value = max; }
 
-            // Sync input polja
             document.getElementById('input_min').value = min;
             document.getElementById('input_max').value = max;
 
-            // Sync skrivenih inputa
             document.getElementById('min_price').value = min;
             document.getElementById('max_price').value = max;
 
-            // Pomeri fill traku
             const absMin = parseFloat(minThumb.min);
             const absMax = parseFloat(minThumb.max);
             const leftPct  = ((min - absMin) / (absMax - absMin)) * 100;

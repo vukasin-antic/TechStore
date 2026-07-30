@@ -38,8 +38,8 @@
                                 <div class="alert alert-success">{{ session('success') }}</div>
                             @endif
 
-                            @if($errors->any())
-                                <div class="alert alert-warning">{{ $errors->first() }}</div>
+                            @if($errors->updateProfile->any())
+                                <div class="alert alert-warning">{{ $errors->updateProfile->first() }}</div>
                             @endif
 
                             <form action="{{ route('profile.update') }}" method="POST">
@@ -72,6 +72,14 @@
                     <div class="card border-0 shadow-sm">
                         <div class="card-body p-4">
                             <h5 class="fw-bold mb-4">Change Password</h5>
+
+                            @if(session('password_success'))
+                                <div class="alert alert-success">{{ session('password_success') }}</div>
+                            @endif
+
+                            @if($errors->changePassword->any())
+                                <div class="alert alert-warning">{{ $errors->changePassword->first() }}</div>
+                            @endif
                             <form action="{{ route('profile.password') }}" method="POST">
                                 @csrf
                                 @method('PUT')
@@ -79,7 +87,7 @@
                                 <div class="mb-3">
                                     <label class="form-label fw-bold">Current Password</label>
                                     <input type="password" name="current_password"
-                                           class="form-control @error('current_password') is-invalid @enderror">
+                                           class="form-control @error('current_password', 'changePassword') is-invalid @enderror">
                                     @error('current_password')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -120,7 +128,6 @@
                                 <div class="alert alert-warning">{{ $errors->first() }}</div>
                             @endif
 
-                            {{-- Forma za dodavanje - sakrivena po defaultu --}}
                             <div class="collapse mb-4" id="add-address-form">
                                 <div class="border rounded p-3">
                                     <h6 class="fw-bold mb-3">New Address</h6>
@@ -172,11 +179,9 @@
                                 </div>
                             </div>
 
-                            {{-- Prikaz postojecih adresa --}}
                             @if($user->addresses->count() > 0)
                                 @foreach($user->addresses as $address)
                                     <div class="border rounded p-3 mb-3">
-                                        {{-- Prikaz adrese --}}
                                         <div id="view-{{ $address->id }}">
                                             <div class="d-flex justify-content-between align-items-start">
                                                 <div>
@@ -195,19 +200,14 @@
                                                             onclick="toggleEdit({{ $address->id }})">
                                                         <i class="fas fa-edit"></i>
                                                     </button>
-                                                    <form action="{{ route('address.destroy', $address->id) }}" method="POST"
-                                                          onsubmit="return confirm('Are you sure you want to delete this address?')">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-sm btn-danger rounded-pill">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-                                                    </form>
+                                                    <button type="button" class="btn btn-sm btn-danger rounded-pill btn-delete-address"
+                                                            data-id="{{ $address->id }}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {{-- Edit forma - sakrivena po defaultu --}}
                                         <div id="edit-{{ $address->id }}" class="d-none mt-3">
                                             <form action="{{ route('address.update', $address->id) }}" method="POST">
                                                 @csrf
@@ -244,8 +244,6 @@
                                                     </div>
                                                     <div class="col-md-6 d-flex align-items-end">
                                                         <div class="form-check mb-2">
-{{--                                                            <input class="form-check-input" type="checkbox" name="is_default" id="is_default" value="1">--}}
-{{--                                                            <label class="form-check-label fw-bold" for="is_default">Set as default</label>--}}
                                                             <input class="form-check-input" type="checkbox" name="is_default"
                                                                    id="edit_default_{{ $address->id }}" value="1"
                                                                 {{ $address->is_default ? 'checked' : '' }}>
@@ -345,6 +343,33 @@
 @endsection
 @section('additional-scripts')
     <script>
+        $(document).on('click', '.btn-delete-address', function() {
+            var addressId = $(this).data('id');
+            var card = $(this).closest('.border.rounded.p-3.mb-3');
+
+            showConfirm('Are you sure you want to delete this address?', function() {
+                $.ajax({
+                    url: '/address/' + addressId,
+                    method: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        _method: 'DELETE'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            card.remove();
+                            showToast(response.message, true);
+                        } else {
+                            showToast(response.message, false);
+                        }
+                    }
+                });
+            }, {
+                title: 'Delete Address',
+                btnText: 'Delete'
+            });
+        });
+
         function toggleEdit(id) {
             document.getElementById('view-' + id).classList.toggle('d-none');
             document.getElementById('edit-' + id).classList.toggle('d-none');

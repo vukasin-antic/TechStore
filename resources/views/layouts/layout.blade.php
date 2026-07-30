@@ -44,6 +44,8 @@
         </div>
     </div>
 
+
+
     @include('fixed.script')
 
     <script>

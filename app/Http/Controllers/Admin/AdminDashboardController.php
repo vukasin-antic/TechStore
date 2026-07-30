@@ -34,10 +34,6 @@ class AdminDashboardController extends Controller
         }
     }
 
-    /**
-     * Daily revenue and order counts for the last 30 days, zero-filled
-     * so the chart has a point for every day.
-     */
     private function salesChartData(): array
     {
         $start = now()->subDays(29)->startOfDay();

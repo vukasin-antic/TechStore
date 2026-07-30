@@ -35,9 +35,6 @@ class ProductController extends Controller
                     ->where('user_id', $userId)
                     ->get();
         }
-
-
-
         return view('pages.product', $this->data);
     }
 }

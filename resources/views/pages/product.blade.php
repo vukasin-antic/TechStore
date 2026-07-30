@@ -133,7 +133,7 @@
                                             @if($review->comment)
                                                 <p class="mt-2 mb-0">{{ $review->comment }}</p>
                                             @endif
-                                            @if($review->user_id === session('user')['id'] ?? null)
+                                            @if(session('user') && $review->user_id === session('user')['id'])
                                                 <form action="{{ route('review.destroy', $review->id) }}" method="POST" class="mt-2">
                                                     @csrf @method('DELETE')
                                                     <button class="btn btn-sm btn-outline-danger">Delete</button>
@@ -142,7 +142,7 @@
                                         </div>
                                     @endforeach
 
-                                    {{-- Forma za recenziju --}}
+                                    {{-- Review form --}}
                                     @if($eligibleOrders->count() > 0)
                                         <div class="mt-4">
                                             <h6 class="fw-bold">Leave a Review</h6>
@@ -171,8 +171,6 @@
                                                 <button type="submit" class="btn btn-primary rounded-pill px-4">Submit Review</button>
                                             </form>
                                         </div>
-{{--                                    @elseif(session('user'))--}}
-{{--                                        <p class="text-muted mt-3">You can only review products from delivered orders.</p>--}}
                                     @endif
                                 </div>
                             </div>
@@ -219,5 +217,3 @@
         </div>
     @endif
 @endsection
-
-

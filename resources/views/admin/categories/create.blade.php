@@ -71,7 +71,3 @@
     </div>
 
 @endsection
-@section('additional-scripts')
-    <script>
-    </script>
-@endsection

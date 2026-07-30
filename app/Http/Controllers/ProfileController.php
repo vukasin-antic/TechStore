@@ -52,16 +52,18 @@ class ProfileController extends Controller
     public function changePassword(ChangePasswordRequest $request)
     {
         try{
+
             $user = User::findOrFail(session('user')['id']);
 
             if(!password_verify($request->current_password, $user->password)){
-                return redirect()->route('profile.edit')->withErrors(['current_password' => 'Your current password is incorrect!']);
+                return redirect()->route('profile.edit')
+                    ->withErrors(['current_password' => 'Your current password is incorrect!'], 'changePassword');
             }
             $user->update([
                 'password' => password_hash($request->new_password, PASSWORD_BCRYPT)
             ]);
 
-            return redirect()->route('profile.edit')->with('success', 'Password changed successfully!');
+            return redirect()->route('profile.edit')->with('password_success', 'Password changed successfully!');
 
         }
         catch (\Exception $exception){

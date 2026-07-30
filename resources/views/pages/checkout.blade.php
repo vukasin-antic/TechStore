@@ -183,7 +183,6 @@
             document.getElementById('input_phone').value   = '';
         }
 
-        // Pri ucitavanju popuni inpute ako postoji default adresa
         document.addEventListener('DOMContentLoaded', function () {
             const select = document.getElementById('selected_address');
             if (select && select.value)

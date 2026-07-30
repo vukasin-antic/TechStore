@@ -23,12 +23,6 @@
                     </div>
                 @endif
 
-{{--                @if($errors->any())--}}
-{{--                    <div class="alert alert-warning mb-4">--}}
-{{--                        <i class="fas fa-exclamation-triangle me-2"></i>{{ $errors->first() }}--}}
-{{--                    </div>--}}
-{{--                @endif--}}
-
                 <form action="{{ route('contact.store') }}" method="POST">
                     @csrf
                     <div class="row g-4">

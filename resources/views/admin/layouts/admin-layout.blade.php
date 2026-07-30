@@ -29,26 +29,26 @@
             </a>
 
             <span class="nav-section">Shop</span>
-            <a href="{{ route('admin.products.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.products.') ? 'admin-active' : '' }}">
+            <a href="{{ route('admin.products.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.products.*') ? 'admin-active' : '' }}">
                 <i class="fas fa-box"></i> Products
             </a>
-            <a href="{{ route('admin.categories.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.categories.') ? 'admin-active' : '' }}">
+            <a href="{{ route('admin.categories.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.categories.*') ? 'admin-active' : '' }}">
                 <i class="fas fa-tags"></i> Categories
             </a>
-            <a href="{{ route('admin.brands.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.brands.') ? 'admin-active' : '' }}">
+            <a href="{{ route('admin.brands.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.brands.*') ? 'admin-active' : '' }}">
                 <i class="fas fa-trademark"></i> Brands
             </a>
-            <a href="{{ route('admin.specifications.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.specifications.') ? 'admin-active' : '' }}">
+            <a href="{{ route('admin.specifications.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.specifications.*') ? 'admin-active' : '' }}">
                 <i class="fas fa-cogs"></i> Specifications
             </a>
 
             <span class="nav-section">Orders</span>
-            <a href="{{ route('admin.orders.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.orders.') ? 'admin-active' : '' }}">
+            <a href="{{ route('admin.orders.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.orders.*') ? 'admin-active' : '' }}">
                 <i class="fas fa-shopping-cart"></i> Orders
             </a>
 
             <span class="nav-section">Users</span>
-            <a href="{{ route('admin.users.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.users.') ? 'admin-active' : '' }}">
+            <a href="{{ route('admin.users.index') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.users.*') ? 'admin-active' : '' }}">
                 <i class="fas fa-users"></i> Users
             </a>
 
